@@ -1,59 +1,123 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Voting Yes / No</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 320px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,.1);
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .yes { background: #4CAF50; color: white; }
-    .no { background: #F44336; color: white; }
-    .reset { background: #555; color: white; margin-top: 15px; }
-    .result {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Vote ACC Proposal</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+  }
+
+  .card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 18px;
+    width: 360px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+  }
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+
+  .vote-btn {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 0 rgba(0,0,0,.3);
+    transition: all .1s ease;
+  }
+
+  .vote-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 rgba(0,0,0,.3);
+  }
+
+  .yes {
+    background: radial-gradient(circle at top, #6ee7b7, #16a34a);
+  }
+
+  .no {
+    background: radial-gradient(circle at top, #fca5a5, #dc2626);
+  }
+
+  .reset {
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #374151;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .reset:hover {
+    background: #111827;
+  }
+</style>
 </head>
+
 <body>
 
 <div class="card">
-  <h2>Vote Pengeseahan RKAS</h2>
+  <h2>Vote ACC Proposal</h2>
 
-  <button class="yes" onclick="vote('yes')">YES</button>
-  <button class="no" onclick="vote('no')">NO</button>
+  <div class="buttons">
+    <button class="vote-btn yes" onclick="vote('yes')">YES</button>
+    <button class="vote-btn no" onclick="vote('no')">NO</button>
+  </div>
 
-  <div class="result" id="result"></div>
+  <canvas id="chart" width="300" height="300"></canvas>
 
   <button class="reset" onclick="resetVote()">RESET VOTING</button>
 </div>
 
 <script>
-  let yes = localStorage.getItem('yes') ? parseInt(localStorage.getItem('yes')) : 0;
-  let no = localStorage.getItem('no') ? parseInt(localStorage.getItem('no')) : 0;
+  let yes = parseInt(localStorage.getItem('yes')) || 0;
+  let no = parseInt(localStorage.getItem('no')) || 0;
+
+  const ctx = document.getElementById('chart');
+
+  const chart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['YES', 'NO'],
+      datasets: [{
+        data: [yes, no],
+        backgroundColor: ['#22c55e', '#ef4444']
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
 
   function vote(type) {
     if (type === 'yes') yes++;
@@ -62,35 +126,22 @@
     localStorage.setItem('yes', yes);
     localStorage.setItem('no', no);
 
-    updateResult();
+    updateChart();
   }
 
-  function updateResult() {
-    const total = yes + no;
-    if (total === 0) {
-      document.getElementById('result').innerHTML = "Belum ada voting";
-      return;
-    }
-
-    const yesPercent = ((yes / total) * 100).toFixed(1);
-    const noPercent = ((no / total) * 100).toFixed(1);
-
-    document.getElementById('result').innerHTML = `
-      YES: ${yes} suara (${yesPercent}%)<br>
-      NO: ${no} suara (${noPercent}%)
-    `;
+  function updateChart() {
+    chart.data.datasets[0].data = [yes, no];
+    chart.update();
   }
 
   function resetVote() {
-    if (confirm("Yakin reset semua voting?")) {
+    if (confirm("Reset semua voting?")) {
       yes = 0;
       no = 0;
       localStorage.clear();
-      updateResult();
+      updateChart();
     }
   }
-
-  updateResult();
 </script>
 
 </body>
