@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Voting Proposal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .yes { background: green; color: white; }
+    .no { background: red; color: white; }
+    canvas { max-width: 400px; margin: 30px auto; }
+  </style>
+</head>
+<body>
+
+  <h2>Voting Persetujuan Proposal</h2>
+
+  <button class="yes" onclick="vote('yes')">YES</button>
+  <button class="no" onclick="vote('no')">NO</button>
+
+  <canvas id="chart"></canvas>
+
+  <script>
+    let yes = localStorage.getItem('yes') || 0;
+    let no = localStorage.getItem('no') || 0;
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['YES', 'NO'],
+        datasets: [{
+          data: [yes, no],
+          backgroundColor: ['green', 'red']
+        }]
+      }
+    });
+
+    function vote(choice) {
+      if (choice === 'yes') yes++;
+      else no++;
+
+      localStorage.setItem('yes', yes);
+      localStorage.setItem('no', no);
+
+      chart.data.datasets[0].data = [yes, no];
+      chart.update();
+    }
+  </script>
+
+</body>
+</html>
