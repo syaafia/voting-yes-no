@@ -8,13 +8,12 @@
 
 <style>
   body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #1e3c72, #2a5298);
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #333;
   }
 
   .card {
@@ -33,7 +32,7 @@
   .buttons {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 
   .vote-btn {
@@ -46,7 +45,6 @@
     border: none;
     cursor: pointer;
     box-shadow: 0 8px 0 rgba(0,0,0,.3);
-    transition: all .1s ease;
   }
 
   .vote-btn:active {
@@ -73,10 +71,6 @@
     font-size: 15px;
     cursor: pointer;
   }
-
-  .reset:hover {
-    background: #111827;
-  }
 </style>
 </head>
 
@@ -99,9 +93,36 @@
   let yes = parseInt(localStorage.getItem('yes')) || 0;
   let no = parseInt(localStorage.getItem('no')) || 0;
 
-  const ctx = document.getElementById('chart');
+  const centerText = {
+    id: 'centerText',
+    afterDraw(chart) {
+      const { ctx, chartArea } = chart;
+      ctx.save();
 
-  const chart = new Chart(ctx, {
+      const total = yes + no;
+      let text = total === 0
+        ? 'Belum ada\nVoting'
+        : `${Math.round((yes/total)*100)}% YES\n${yes} / ${total}`;
+
+      ctx.font = 'bold 18px Arial';
+      ctx.fillStyle = '#111';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const lines = text.split('\n');
+      lines.forEach((line, i) => {
+        ctx.fillText(
+          line,
+          chartArea.left + chartArea.width / 2,
+          chartArea.top + chartArea.height / 2 + (i * 22)
+        );
+      });
+
+      ctx.restore();
+    }
+  };
+
+  const chart = new Chart(document.getElementById('chart'), {
     type: 'pie',
     data: {
       labels: ['YES', 'NO'],
@@ -116,7 +137,8 @@
           position: 'bottom'
         }
       }
-    }
+    },
+    plugins: [centerText]
   });
 
   function vote(type) {
