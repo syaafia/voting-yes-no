@@ -2,61 +2,96 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Voting Proposal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Voting Yes / No</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
       text-align: center;
-      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.1);
     }
     button {
-      padding: 15px 30px;
-      font-size: 18px;
-      margin: 10px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
-    .yes { background: green; color: white; }
-    .no { background: red; color: white; }
-    canvas { max-width: 400px; margin: 30px auto; }
+    .yes { background: #4CAF50; color: white; }
+    .no { background: #F44336; color: white; }
+    .reset { background: #555; color: white; margin-top: 15px; }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Voting Persetujuan Proposal</h2>
+<div class="card">
+  <h2>Vote Pengeseahan RKAS</h2>
 
   <button class="yes" onclick="vote('yes')">YES</button>
   <button class="no" onclick="vote('no')">NO</button>
 
-  <canvas id="chart"></canvas>
+  <div class="result" id="result"></div>
 
-  <script>
-    let yes = localStorage.getItem('yes') || 0;
-    let no = localStorage.getItem('no') || 0;
+  <button class="reset" onclick="resetVote()">RESET VOTING</button>
+</div>
 
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['YES', 'NO'],
-        datasets: [{
-          data: [yes, no],
-          backgroundColor: ['green', 'red']
-        }]
-      }
-    });
+<script>
+  let yes = localStorage.getItem('yes') ? parseInt(localStorage.getItem('yes')) : 0;
+  let no = localStorage.getItem('no') ? parseInt(localStorage.getItem('no')) : 0;
 
-    function vote(choice) {
-      if (choice === 'yes') yes++;
-      else no++;
+  function vote(type) {
+    if (type === 'yes') yes++;
+    if (type === 'no') no++;
 
-      localStorage.setItem('yes', yes);
-      localStorage.setItem('no', no);
+    localStorage.setItem('yes', yes);
+    localStorage.setItem('no', no);
 
-      chart.data.datasets[0].data = [yes, no];
-      chart.update();
+    updateResult();
+  }
+
+  function updateResult() {
+    const total = yes + no;
+    if (total === 0) {
+      document.getElementById('result').innerHTML = "Belum ada voting";
+      return;
     }
-  </script>
+
+    const yesPercent = ((yes / total) * 100).toFixed(1);
+    const noPercent = ((no / total) * 100).toFixed(1);
+
+    document.getElementById('result').innerHTML = `
+      YES: ${yes} suara (${yesPercent}%)<br>
+      NO: ${no} suara (${noPercent}%)
+    `;
+  }
+
+  function resetVote() {
+    if (confirm("Yakin reset semua voting?")) {
+      yes = 0;
+      no = 0;
+      localStorage.clear();
+      updateResult();
+    }
+  }
+
+  updateResult();
+</script>
 
 </body>
 </html>
