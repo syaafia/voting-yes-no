@@ -100,21 +100,30 @@
       ctx.save();
 
       const total = yes + no;
-      let text = total === 0
-        ? 'Belum ada\nVoting'
-        : `${Math.round((yes/total)*100)}% YES\n${yes} / ${total}`;
+      let lines = [];
 
-      ctx.font = 'bold 18px Arial';
+      if (total === 0) {
+        lines = ['Belum ada', 'Voting'];
+      } else {
+        const yesPercent = Math.round((yes / total) * 100);
+        const noPercent = Math.round((no / total) * 100);
+
+        lines = [
+          `YES : ${yes} suara (${yesPercent}%)`,
+          `NO  : ${no} suara (${noPercent}%)`
+        ];
+      }
+
+      ctx.font = 'bold 14px Arial';
       ctx.fillStyle = '#111';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      const lines = text.split('\n');
       lines.forEach((line, i) => {
         ctx.fillText(
           line,
           chartArea.left + chartArea.width / 2,
-          chartArea.top + chartArea.height / 2 + (i * 22)
+          chartArea.top + chartArea.height / 2 + (i * 20)
         );
       });
 
